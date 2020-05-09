@@ -2,6 +2,9 @@ package org.glassfish.web.ha.serializer;
 
 import java.util.Collection;
 
+/**
+ * @author ZH (mailto: lizw@primeton.com)
+ */
 public class ObjectWrapper extends Wrapper {
 
     private String className;

@@ -1,6 +1,7 @@
 package org.glassfish.web.ha.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -106,24 +108,31 @@ public class JacksonSerializer {
 
     private Object deserializeWrapper(JsonNode wrapperNode, JsonNode objectNode, int type) {
         JsonNode elementTypesNode = wrapperNode.findValue("elementTypes");
-        JsonNode primitivesNode = wrapperNode.findValue("primitives");
-        if (!elementTypesNode.isArray() || !objectNode.isArray()) {
+        JsonNode componentTypeNode = wrapperNode.findValue("componentType");
+
+        if (!objectNode.isArray()) {
             return null;
         }
-        // Elements: XxxWrapper -> Real Object
-        Iterator<JsonNode> typeElementsIterator = elementTypesNode.elements();
-        Iterator<JsonNode> objectElementsIterator = objectNode.elements();
-        Iterator<JsonNode> primitivesIterator = primitivesNode.elements();
+        String componentType = componentTypeNode.asText();
+        componentType = null == componentType || componentType.trim().isEmpty() ? String.class.getName() : componentType;
+        boolean primitiveArray = false;
+        if (Stream.of(ArrayWrapper.javaPrimitiveTypes).anyMatch(componentType :: equalsIgnoreCase)) {
+            primitiveArray = true;
+        } else {
+            if (!elementTypesNode.isArray()) {
+                return null;
+            }
+        }
 
-        List<String> classNames = new ArrayList<>();
-        List<Boolean> primitives = new ArrayList<>();
+        // Elements: XxxWrapper -> Real Object
+        Iterator<JsonNode> typeElementsIterator = primitiveArray ? null : elementTypesNode.elements();
+        Iterator<JsonNode> objectElementsIterator = objectNode.elements();
+
+        List<String> classNames = primitiveArray ? null : new ArrayList<>();
         List<Object> realObjects = new ArrayList<>();
 
-        while (typeElementsIterator.hasNext()) {
+        while (!primitiveArray && typeElementsIterator.hasNext()) {
             classNames.add(typeElementsIterator.next().asText());
-        }
-        while (primitivesIterator.hasNext()) {
-            primitives.add(primitivesIterator.next().asBoolean());
         }
         int i = 0;
         while (objectElementsIterator.hasNext()) {
@@ -131,7 +140,7 @@ public class JacksonSerializer {
             if (null == node) {
                 realObjects.add(null);
             } else {
-                realObjects.add(deserializeObject(node, classNames.get(i), primitives.get(i)));
+                realObjects.add(deserializeObject(node, primitiveArray ? componentType : classNames.get(i), primitiveArray));
             }
             i++;
         }
@@ -141,6 +150,24 @@ public class JacksonSerializer {
             return realObjects;
         }
         if (Wrapper.TYPE_ARRAY == type) {
+            // return realObjects.toArray();
+            // 反序列化时保证与原数组类型一致（否则粗暴实现全转成 Object Array）
+            try {
+                if (primitiveArray) {
+                    /*
+                    final String componentType2 = componentType;
+                    Class<?> clazz = Stream.of(ArrayWrapper.javaPrimitiveClasses).filter(c -> c.getName().equalsIgnoreCase(componentType2)).findFirst().orElse(null);
+                    Object array = Array.newInstance(clazz, realObjects.size());
+                    return realObjects.toArray((?[])array);
+                     */
+                    return ArrayUtils.asPrimitiveArray(realObjects, componentType);
+                }
+                Class<?> clazz = getClassLoader().loadClass(componentType);
+                Object array = Array.newInstance(clazz, realObjects.size());
+                return realObjects.toArray((Object[])array);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return realObjects.toArray();
         }
         if (Wrapper.TYPE_SET == type) {
@@ -150,14 +177,14 @@ public class JacksonSerializer {
         return null;
     }
 
-    private Object deserializeObject(JsonNode node, String className, Boolean primitive) {
+    protected Object deserializeObject(JsonNode node, String className, boolean primitive) {
         if (null == className || className.trim().isEmpty() || "null".equalsIgnoreCase(className)) {
             return null;
         }
         if (node.isArray()) {
             return null;
         }
-        if (null != primitive && primitive.booleanValue()) {
+        if (primitive) {
             return asPrimitiveObject(node, className);
         }
 
@@ -194,7 +221,7 @@ public class JacksonSerializer {
         return deserializeWrapper(wrapperNode, objectNode, Wrapper.TYPE_ARRAY);
     }
 
-    private Object deserializeObjectWrapper(JsonNode wrapperNode) {
+    protected Object deserializeObjectWrapper(JsonNode wrapperNode) {
         return deserializeObjectWrapper(wrapperNode, null);
     }
 

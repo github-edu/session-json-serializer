@@ -3,17 +3,67 @@ package org.glassfish.web.ha.serializer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
+/**
+ * @author ZH (mailto: lizw@primeton.com)
+ */
 public class ArrayWrapper extends Wrapper {
 
     /**
-     * 每个元素的类型
+     * Java基本类型类
+     */
+    public static final String[] javaPrimitiveTypes = new String[] {
+            "boolean",
+            "char",
+            "byte",
+            "short",
+            "int",
+            "long",
+            "float",
+            "double",
+            "void"
+    };
+    /**
+     * Java基本类型类
+     */
+    public static final Class<?>[] javaPrimitiveClasses = new Class[] {
+            boolean.class,
+            char.class,
+            byte.class,
+            short.class,
+            int.class,
+            long.class,
+            float.class,
+            double.class,
+            void.class
+    };
+
+    /**
+     * Java基本类型数组类
+     */
+    public static final Class<?>[] javaPrimitiveArrayClasses = new Class[] {
+            boolean[].class,
+            char[].class,
+            byte[].class,
+            short[].class,
+            int[].class,
+            long[].class,
+            float[].class,
+            double[].class
+    };
+
+    /**
+     * 每个元素的类型（对于基本类型数组，此参数无用）
      */
     private List<String> elementTypes = new ArrayList<>();
+
     /**
-     * 每个元素是否是基本类型
+     * 数组声明的类型： <br>
+     * 基本类型：int, long, float, double, boolean, ... <br>
+     * 对象类型：java.lang.Object, java.lang.Long, com.java.test.User, com.java.test.User$Foo, ... <br>
      */
-    private List<Boolean> primitives = new ArrayList<>();
+    private String componentType;
 
     public ArrayWrapper() {
     }
@@ -25,7 +75,6 @@ public class ArrayWrapper extends Wrapper {
 
     protected void init() {
         elementTypes.clear();
-        primitives.clear();
         if (null == object) {
             return;
         }
@@ -43,64 +92,17 @@ public class ArrayWrapper extends Wrapper {
         //     * @see     java.lang.Double#TYPE
         //     * @see     java.lang.Void#TYPE
         // Primitive Type Array int[] long[] boolean[] ...
-        if (object.getClass().isAssignableFrom(boolean[].class)) {
-            boolean[] array = (boolean[])object;
-            for (boolean element : array) {
-                elementTypes.add("boolean");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(char[].class)) {
-            char[] array = (char[])object;
-            for (char element : array) {
-                elementTypes.add("char");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(byte[].class)) {
-            byte[] array = (byte[])object;
-            for (byte element : array) {
-                elementTypes.add("byte");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(short[].class)) {
-            short[] array = (short[])object;
-            for (short element : array) {
-                elementTypes.add("short");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(int[].class)) {
-            int[] array = (int[])object;
-            for (int element : array) {
-                elementTypes.add("int");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(long[].class)) {
-            long[] array = (long[])object;
-            for (long element : array) {
-                elementTypes.add("long");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(float[].class)) {
-            float[] array = (float[])object;
-            for (float element : array) {
-                elementTypes.add("float");
-                primitives.add(true);
-            }
-        } else if (object.getClass().isAssignableFrom(double[].class)) {
-            double[] array = (double[])object;
-            for (double element : array) {
-                elementTypes.add("double");
-                primitives.add(true);
-            }
+        componentType = object.getClass().getComponentType().getName();
+        if (Stream.of(javaPrimitiveArrayClasses).anyMatch(object.getClass() :: isAssignableFrom)) {
+            // 基本类型数组，每个元素都是相同的类型，无需存储各个元素的类型
         } else {
             Object[] array = (Object[])object;
             for (Object obj : array) {
                 if (obj.getClass().isArray() || obj instanceof Collection) {
                     System.err.println("[WARNING] Array element not allowed to use Array or Collection. Cause: Deserialization does not recognize the type of its element.");
                     elementTypes.add(null);
-                    primitives.add(true);
                 } else {
                     elementTypes.add(null == obj ? null : obj.getClass().getName());
-                    primitives.add(null == obj ? true : obj.getClass().isPrimitive());
                 }
             }
         }
@@ -117,11 +119,17 @@ public class ArrayWrapper extends Wrapper {
         return TYPE_ARRAY;
     }
 
+    /**
+     * If Primitive Array return empty.
+     *
+     * @return
+     */
     public List<String> getElementTypes() {
         return elementTypes;
     }
 
-    public List<Boolean> getPrimitives() {
-        return primitives;
+    public String getComponentType() {
+        return componentType;
     }
+
 }

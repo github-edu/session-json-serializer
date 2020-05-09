@@ -7,6 +7,8 @@ import java.util.Map;
 
 /**
  * 暂时只支持KEY为String类型的MAP
+ *
+ * @author ZH (mailto: lizw@primeton.com)
  */
 public class MapWrapper extends Wrapper {
 
