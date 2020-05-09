@@ -21,6 +21,22 @@ public class JsonTest2 {
 		Map<String, Object> attrs = new HashMap<>();
 		
 		{
+			// 基本类型
+			attrs.put("intArray", new int[] { 1, 2, 3 });
+			attrs.put("booleanArray", new boolean[] { false, true, false });
+			attrs.put("floatArray", new float[] { 1.1f, 2.2f, 3.3f });
+		}
+		{
+			// 基本类型 - 对象
+			attrs.put("Boolean", Boolean.TRUE);
+			attrs.put("Int", 123);
+			attrs.put("Long", 123L);
+			attrs.put("Float", 123.456f);
+			attrs.put("Fouble", 123.456d);
+			attrs.put("Byte", new Byte((byte) 11));
+		}
+		
+		{
 			// 集合测试
 			Set<String> set = new HashSet<>();
 			set.add("Java");

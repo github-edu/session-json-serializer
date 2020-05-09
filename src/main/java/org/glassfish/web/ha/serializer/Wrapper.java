@@ -12,8 +12,8 @@ public abstract class Wrapper {
 
     protected Object object;
     
-    @JsonProperty
-    protected boolean primitive;
+//    @JsonProperty
+//    protected boolean primitive;
 
     public Wrapper() {
     }
@@ -28,13 +28,17 @@ public abstract class Wrapper {
      *
      * @return
      */
+    @JsonProperty
     public boolean isPrimitive() {
-        if (null == object) {
-        	primitive = true;
-        } else {
-        	primitive = object.getClass().isPrimitive();
-        }
-        return primitive;
+//        if (null == object) {
+//        	primitive = true;
+//        } else {
+//        	primitive = object.getClass().isPrimitive();
+//        }
+//        return primitive;
+    	boolean primitive = null == object ? true : object.getClass().isPrimitive();
+    	System.out.println("primitive = " + primitive);
+    	return primitive;
     }
 
     public abstract int getType();
@@ -45,7 +49,7 @@ public abstract class Wrapper {
 
     public void setObject(Object object) {
         this.object = object;
-        isPrimitive();
+//        isPrimitive();
     }
 
 }
