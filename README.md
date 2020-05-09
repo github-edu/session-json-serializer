@@ -200,3 +200,6 @@
   }
 }
 ```
+
+
+<img src='README/images/JacksonSerializer.png' />

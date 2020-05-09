@@ -1,5 +1,7 @@
 package org.glassfish.web.ha.serializer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public abstract class Wrapper {
 
     public static final int TYPE_OBJECT = 1;
@@ -9,12 +11,16 @@ public abstract class Wrapper {
     public static final int TYPE_MAP = 5;
 
     protected Object object;
+    
+    @JsonProperty
+    protected boolean primitive;
 
     public Wrapper() {
     }
 
     public Wrapper(Object object) {
         this.object = object;
+        isPrimitive();
     }
 
     /**
@@ -24,9 +30,11 @@ public abstract class Wrapper {
      */
     public boolean isPrimitive() {
         if (null == object) {
-            return true;
+        	primitive = true;
+        } else {
+        	primitive = object.getClass().isPrimitive();
         }
-        return object.getClass().isPrimitive();
+        return primitive;
     }
 
     public abstract int getType();
@@ -37,6 +45,7 @@ public abstract class Wrapper {
 
     public void setObject(Object object) {
         this.object = object;
+        isPrimitive();
     }
 
 }
