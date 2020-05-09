@@ -47,7 +47,7 @@ public class ArrayUtils {
                 }
                 Character c = e instanceof Character ? (Character)e : null;
                 if (null == c) {
-                    String s = c.toString();
+                    String s = e.toString();
                     c = s.isEmpty() ? ' ' : Character.valueOf(s.charAt(0));
                 }
                 array[i] = null == c ? ' ' : c.charValue();

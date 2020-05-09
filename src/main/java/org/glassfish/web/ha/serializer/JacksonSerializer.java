@@ -171,7 +171,7 @@ public class JacksonSerializer {
             return realObjects.toArray();
         }
         if (Wrapper.TYPE_SET == type) {
-            return new HashSet(realObjects);
+            return new HashSet<Object>(realObjects);
         }
 
         return null;
