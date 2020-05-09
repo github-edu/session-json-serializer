@@ -1,6 +1,10 @@
 # Test
 
 
+Run main class `JsonTest2`
+
+  
+
 ```json
 {
   "Boolean": {
@@ -244,5 +248,6 @@
 ```
 
 
-<img src='README/images/JacksonSerializer.png' />
-<img src='README/images/JacksonSerializer1.png' />
+![JacksonSerializer.png](README/images/JacksonSerializer.png)
+  
+![JacksonSerializer.png](README/images/JacksonSerializer1.png)
