@@ -1,17 +1,17 @@
-package org.glassfish.web.ha.serializer;
+package org.os.maven.ketty;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author ZH (mailto: lizw@primeton.com)
  */
-public class SetWrapper extends ArrayWrapper {
+public class ListWrapper extends ArrayWrapper {
 
-    public SetWrapper() {
+    public ListWrapper() {
     }
 
-    public SetWrapper(Object object) {
+    public ListWrapper(Object object) {
         super(object);
         init();
     }
@@ -22,13 +22,13 @@ public class SetWrapper extends ArrayWrapper {
         if (null == object) {
             return;
         }
-        if (! (object instanceof Set)) {
-            throw new RuntimeException("Non-Set Object not allowed.");
+        if (! (object instanceof List)) {
+            throw new RuntimeException("Non-List Object not allowed.");
         }
-        Set<?> array = (Set)object;
+        List<?> array = (List)object;
         for (Object obj : array) {
             if (obj.getClass().isArray() || obj instanceof Collection) {
-                System.err.println("[WARNING] Set element not allowed to use Array or Collection. Cause: Deserialization does not recognize the type of its element.");
+                System.err.println("[WARNING] List element not allowed to use Array or Collection. Cause: Deserialization does not recognize the type of its element.");
                 getElementTypes().add(null);
             } else {
                 getElementTypes().add(null == obj ? null : obj.getClass().getName());
@@ -38,7 +38,7 @@ public class SetWrapper extends ArrayWrapper {
 
     @Override
     public int getType() {
-        return TYPE_SET;
+        return TYPE_LIST;
     }
 
 }

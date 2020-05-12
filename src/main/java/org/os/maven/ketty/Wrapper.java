@@ -1,4 +1,4 @@
-package org.glassfish.web.ha.serializer;
+package org.os.maven.ketty;
 
 /**
  * @author ZH (mailto: lizw@primeton.com)

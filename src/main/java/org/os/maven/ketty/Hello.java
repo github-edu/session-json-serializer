@@ -82,7 +82,19 @@ public class Hello {
 			b[0] = 127;
 			System.out.println(b[0]);
 			
-			System.out.println(Byte.parseByte("128"));
+			System.out.println(Byte.parseByte("127"));
+		}
+		
+		{
+			System.out.println();
+			System.out.println((char)123);
+			System.out.println((char)124);
+			System.out.println((char)125);
+			System.out.println(Character.getName(123));
+			System.out.println(Character.getName(124));
+			System.out.println(Character.getName(125));
+			
+			System.out.println("null".getBytes().length);
 		}
 		
 	}

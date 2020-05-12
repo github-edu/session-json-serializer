@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.glassfish.web.ha.serializer.JacksonSerializer;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonTest2 {

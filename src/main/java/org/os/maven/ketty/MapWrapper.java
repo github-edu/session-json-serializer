@@ -1,4 +1,4 @@
-package org.glassfish.web.ha.serializer;
+package org.os.maven.ketty;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import java.util.Collection;
